@@ -5,19 +5,281 @@ Laporan Resmi Praktikum Modul 3 Kelompok D20
 | Khairuddin Nasty | 5025201041  |
 | Altriska Izzati Khairunnisa Hermawan | 5025211187  |   
 
-## Initial config  
 ## Soal 0
 > Setelah mengalahkan Demon King, perjalanan berlanjut. Kali ini, kalian diminta untuk melakukan register domain berupa riegel.canyon.yyy.com untuk worker Laravel dan granz.channel.yyy.com untuk worker PHP mengarah pada worker yang memiliki IP [prefix IP].x.1.
+Pada `/root/.bashrc`
+```
+echo '
+zone "canyon.d20.com" {
+        type master;
+        file "/etc/bind/jarkom/canyon.d20.com";
+};
+
+zone "channel.d20.com" {
+        type master;
+        file "/etc/bind/jarkom/channel.d20.com";
+};
+' > named.conf.local
+
+mkdir /etc/bind/jarkom
+cp named.conf.local /etc/bind/
+cp canyon.d20.com /etc/bind/jarkom/
+cp channel.d20.com /etc/bind/jarkom/
+
+echo '
+$TTL    604800
+@       IN      SOA     canyon.d20.com. root.canyon.d20.com. (
+                        2022100601      ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;modu
+@       IN      NS      canyon.d20.com.
+@       IN      A       192.201.1.2 
+riegel  IN      A       192.201.4.1
+@       IN      AAAA    ::1
+' > /etc/bind/jarkom/canyon.d20.com
+
+echo '
+$TTL    604800
+@       IN      SOA     channel.d20.com. root.channel.d20.com. (
+                        2022100601      ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      channel.d20.com.
+@       IN      A       192.201.1.2
+granz   IN      A       192.201.3.1
+@       IN      AAAA    ::1
+' > /etc/bind/jarkom/channel.d20.com
+
+service bind9 restart
+```
+
 ## Soal 1
-> Lakukan konfigurasi sesuai dengan peta yang sudah diberikan  
+> Lakukan konfigurasi sesuai dengan peta yang sudah diberikan
+### Topologi 
+![image](https://github.com/altriskaa/jarkom-d20-modul-3-2023/assets/114663340/238307c2-d8b9-463f-bfae-10fd9b5acdec)
+
+### Initial config
+#### Aura
+```
+auto eth0
+iface eth0 inet dhcp
+up iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 192.201.0.0/16
+
+auto eth1
+iface eth1 inet static
+	address 192.201.1.0
+	netmask 255.255.255.0
+
+auto eth2
+iface eth2 inet static
+	address 192.201.2.0
+	netmask 255.255.255.0
+
+auto eth3
+iface eth3 inet static
+	address 192.201.3.0
+	netmask 255.255.255.0
+
+auto eth4
+iface eth4 inet static
+	address 192.201.4.0
+	netmask 255.255.255.0
+```
+#### Himmel
+```
+auto eth0
+iface eth0 inet static
+	address 192.201.1.1
+	netmask 255.255.255.0
+	gateway 192.201.1.0
+	up echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
+#### Heiter
+```
+auto eth0
+iface eth0 inet static
+	address 192.201.1.2
+	netmask 255.255.255.0
+	gateway 192.201.1.0
+	up echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
+#### Denken
+```
+auto eth0
+iface eth0 inet static
+	address 192.201.2.1
+	netmask 255.255.255.0
+	gateway 192.201.2.0
+	up echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
+#### Eisen
+```
+auto eth0
+iface eth0 inet static
+	address 192.201.2.2
+	netmask 255.255.255.0
+	gateway 192.201.2.0
+	up echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
+#### Lawine
+```
+auto eth0
+iface eth0 inet static
+	address 192.201.3.1
+	netmask 255.255.255.0
+	gateway 192.201.3.0
+	up echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
+#### Linie
+```
+auto eth0
+iface eth0 inet static
+	address 192.201.3.2
+	netmask 255.255.255.0
+	gateway 192.201.3.0
+	up echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
+#### Lugner
+```
+auto eth0
+iface eth0 inet static
+	address 192.201.3.3
+	netmask 255.255.255.0
+	gateway 192.201.3.0
+	up echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
+#### Frieren
+```
+auto eth0
+iface eth0 inet static
+	address 192.201.4.1
+	netmask 255.255.255.0
+	gateway 192.201.4.0
+	up echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
+#### Flamme
+```
+auto eth0
+iface eth0 inet static
+	address 192.201.4.2
+	netmask 255.255.255.0
+	gateway 192.201.4.0
+	up echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
+#### Fern
+```
+auto eth0
+iface eth0 inet static
+	address 192.201.4.3
+	netmask 255.255.255.0
+	gateway 192.201.4.0
+	up echo nameserver 192.168.122.1 > /etc/resolv.conf
+```
 ## Soal 2
-> Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.16 - [prefix IP].3.32 dan [prefix IP].3.64 - [prefix IP].3.80 
+> Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.16 - [prefix IP].3.32 dan [prefix IP].3.64 - [prefix IP].3.80
+#### Aura (DHCP Relay)
+```
+echo nameserver 192.168.122.1 > /etc/resolv.conf
+apt-get update
+apt-get install isc-dhcp-relay -y
+
+echo '
+SERVERS = “192.201.1.1”
+INTERFACES = “eth1 eth2 eth3 eth4” 
+' > /etc/default/isc-dhcp-relay
+
+echo ' 
+net.ipv4.ip_forward=1
+service isc-dhcp-relay restart
+' > /etc/sysctl.conf
+```
+
+#### Himmel (DHCP Server)
+```
+apt -get update
+apt-get install isc-dhcp-server -y
+
+echo ' 
+INTERFACESv4="eth0"
+INTERFACESv6=""
+' > /etc/default/isc-dhcp-server
+
+echo '
+subnet 192.201.1.0 netmask 255.255.255.0 {
+}
+
+subnet 192.201.2.0 netmask 255.255.255.0 {
+}
+
+subnet 192.201.3.0 netmask 255.255.255.0 {
+    range 192.201.3.16 192.201.3.32;
+    range 192.201.3.64 192.201.3.80;
+    option routers 192.201.3.0;
+    option broadcast-address 192.201.3.255;
+    option domain-name-servers 192.201.1.2;
+    default-lease-time 180;
+    max-lease-time 5760;
+}
+
+subnet 192.201.4.0 netmask 255.255.255.0 {
+    range 192.201.4.12 192.201.4.32;
+    range 192.201.4.160 192.201.4.168;
+    option routers 192.201.4.0;
+    option broadcast-address 192.201.4.255;
+    option domain-name-servers 192.201.1.2;
+    default-lease-time 720;
+    max-lease-time 5760;
+}
+' > /etc/dhcp/dhcpd.conf
+service isc-dhcp-server restart
+```
+
+#### Heiter (DNS Server)
+```
+echo '
+options {
+        directory "/var/cache/bind";
+
+        forwarders {
+                192.168.122.1;
+        };
+
+      // dnssec-validation auto;
+        allow-query{any;};
+        auth-nxdomain no;
+        listen-on-v6 { any; };
+};
+' > /etc/bind/named.conf.options
+```
+![image](https://github.com/altriskaa/jarkom-d20-modul-3-2023/assets/114663340/082e65c3-917c-4d64-95c4-0b7e3a7673fc)
+
 ## Soal 3
 > Client yang melalui Switch4 mendapatkan range IP dari [prefix IP].4.12 - [prefix IP].4.20 dan [prefix IP].4.160 - [prefix IP].4.168
+![image](https://github.com/altriskaa/jarkom-d20-modul-3-2023/assets/114663340/97df33f9-761b-4e43-9a00-bd8971d68556)
+
 ## Soal 4
-> Client mendapatkan DNS dari Heiter dan dapat terhubung dengan internet melalui DNS tersebut  
+> Client mendapatkan DNS dari Heiter dan dapat terhubung dengan internet melalui DNS tersebut
+Untuk memeriksa apakah Client telah terhubung dengan internet, dilakukan `ping google.com`
+#### Revolte
+![image](https://github.com/altriskaa/jarkom-d20-modul-3-2023/assets/114663340/4b9d30af-bc39-49f2-89d5-5d4e6527d487)
+#### Richter
+![image](https://github.com/altriskaa/jarkom-d20-modul-3-2023/assets/114663340/0a7ee362-2273-4917-9990-b85e0f5af795)
+#### Sein
+![image](https://github.com/altriskaa/jarkom-d20-modul-3-2023/assets/114663340/697ac612-ae56-4a1f-ad18-d015c6209757)
+#### Stark
+![image](https://github.com/altriskaa/jarkom-d20-modul-3-2023/assets/114663340/ce1a3db5-7cbc-414d-91c2-ede57bc26055)
+
 ## Soal 5
-> Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch3 selama 3 menit sedangkan pada client yang melalui Switch4 selama 12 menit. Dengan waktu maksimal dialokasikan untuk peminjaman alamat IP selama 96 menit 
+> Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch3 selama 3 menit sedangkan pada client yang melalui Switch4 selama 12 menit. Dengan waktu maksimal dialokasikan untuk peminjaman alamat IP selama 96 menit
+![image](https://github.com/altriskaa/jarkom-d20-modul-3-2023/assets/114663340/082e65c3-917c-4d64-95c4-0b7e3a7673fc)
+
+ 
 ## Soal 6
 > Pada masing-masing worker PHP, lakukan konfigurasi virtual host untuk website [berikut](https://drive.google.com/file/d/1ViSkRq7SmwZgdK64eRbr5Fm1EGCTPrU1/view?usp=sharing) dengan menggunakan php 7.3.  
 ### PHP Worker (Lawine, Linie, Lugner)
